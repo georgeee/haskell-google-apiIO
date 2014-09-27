@@ -19,10 +19,13 @@ removePrefixLCFirstOpts fieldPrefix constructorPrefix = defaultOptions { fieldLa
                                                            , constructorTagModifier = removePrefixLCFirst constructorPrefix
                                                            , omitNothingFields = True
                                                            }
+genFromJSON :: String -> String -> Name -> Q [Dec]
 genFromJSON fieldPrefix constructorPrefix typeName = [d|
                                         instance FromJSON $(conT typeName) where
                                              parseJSON = genericParseJSON $ removePrefixLCFirstOpts fieldPrefix constructorPrefix
                                         |]
+
+genToJSON :: String -> String -> Name -> Q [Dec]
 genToJSON fieldPrefix constructorPrefix typeName = [d|
                                         instance ToJSON $(conT typeName) where
                                              toJSON = genericToJSON $ removePrefixLCFirstOpts fieldPrefix constructorPrefix

@@ -9,9 +9,24 @@ import           GHC.Generics
 import           Data.Time
 import           Data.Time.RFC3339
 import           System.Locale
+import           Data.Time.Zones.DB (TZLabel, fromTZName, toTZName)
 
+import qualified Data.ByteString.Char8           as B8
 import qualified Data.Text                       as T
+import qualified Data.Text.Encoding              as T
 import           Network.Google.ApiIO.GenericParams (ToString(..))
+
+type ApiTimeZone = TZLabel
+
+instance FromJSON TZLabel where
+    parseJSON (String text) = case fromTZName $ T.encodeUtf8 text of
+                                Just tzLabel -> return tzLabel
+                                _ -> mzero
+    parseJSON _ = mzero
+instance ToJSON TZLabel where
+    toJSON = AT.String . T.decodeUtf8 . toTZName
+instance ToString TZLabel where
+    toString = B8.unpack . toTZName
 
 newtype ApiDate = ApiDate Day
     deriving (Show)
